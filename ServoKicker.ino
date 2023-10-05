@@ -1,4 +1,5 @@
 /* 
+ServoKicker
 Trolling Motor Speed Controller
 Joel Niebergal - Oct 2023
 
@@ -17,21 +18,20 @@ and not sink your lines while fighting a fish. The led on the button is lit, let
 program is running. When the button is pushed again, the speed goes back to what was originally set on the 
 dial and the led is turned off.
 
-
-// increased throttle is clockwise, 0 degree command
-// reduced throttle is counter-clockwise, 70 degree command
+Increased throttle is clockwise --> towards a 0 degree command value
+Reduced throttle is counter-clockwise --> towards a 70 degree command value
 */
 
 #include <Servo.h>          //include the servo library
 Servo myservo;              // create servo object to control a servo
 
-int cmdval = 35;            // variable to read the value from the analog pin  // change back to 0 after dev
+int cmdval = 70;            // variable to read the value from the analog pin
+int cmdmin = 0;             //max throttle limit
+int cmdmax = 70;            //low throttle limit
 int origval = 0;            // to store orginal throttle value
 
 int FBState = 0;            // variable for reading the Full pushbutton status
 int IBState = 0;            // variable for reading the Idle pushbutton status
-int IncBState = 0;          // variable for reading the incr pushbutton status
-int DecrBState = 0;         // variable for reading the incr pushbutton status
 
 const int Fled = 4;         //Full speed button led
 const int Iled = 5;         //Idle speed button led
@@ -43,14 +43,15 @@ const int IButton = 10;     //Idle speed button
 const int IncButton = 11;   //Idle speed button
 const int DecrButton = 12;  //Idle speed button
 
-const int FullPin = 65;     //Full speed setting. (93% of 70 degrees) ** Modify to change amount of throttle **
-const int IdlePin = 1;      //Idle speed setting. (1% of 70 degrees) ** Modify to change amount of throttle **
+const int FullPin = 65;     //Full speed setting. (93% of 70 degrees)
+const int IdlePin = 1;      //Idle speed setting. (1% of 70 degrees)
+const int incrVal = 2;      //Inc/decr value in degress
 
 //*********************************************************************************************
 void setup()
 {
   myservo.attach(3);            // attaches the servo on pin 3 to the servo object
-  myservo.write(70 - cmdval);   // sets the initial servo position to zero or full idle (reversed servo)
+  myservo.write(cmdval);   // sets the initial servo position to zero (or idle)
   
   pinMode(Fled, OUTPUT);        // set the pins for the button leds to outputs
   pinMode(Iled, OUTPUT);
@@ -62,9 +63,6 @@ void setup()
   pinMode(IncButton, INPUT);
   pinMode(DecrButton, INPUT);
   
-  //cmdval = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
-  //cmdval = map(cmdval, 0, 1023, 70, 0);   // scale it to use it with the servo (value between 0 and 70)
-  
 } //end setup
 
 //**************************************************************************************************************
@@ -72,27 +70,23 @@ void setup()
 void loop()
 {
   IBState = digitalRead(IButton);       // read the state of the Idle pushbutton value
-  if (IBState == HIGH) {                // run the Idle speed function
-    delay(250);                         // to debounce button
-    Idle();                             // go to Idle function
+  if (IBState == HIGH) {
+    delay(250);
+    Idle();
   } 
 
   FBState = digitalRead(FButton);       // read the state of the Full pushbutton value
   if (FBState == HIGH) {            
     delay(250);
-    Full();                             // go to Full function
+    Full();
   } 
 
-  IncBState = digitalRead(IncButton);   // read the state of the Full pushbutton value
-  if (IncBState == HIGH) {            
-    delay(100);
-    Incr();                             // go to Incr function
+  if (digitalRead(IncButton)) {            
+    Incr();
   } 
 
-  DecrBState = digitalRead(DecrButton); // read the state of the Full pushbutton value
-  if (DecrBState == HIGH) {            
-    delay(100);
-    Decr();                             // go to Decr function
+  if (digitalRead(DecrButton)) {            
+    Decr();
   } 
   
 } // end loop  
@@ -129,20 +123,22 @@ void Full() {
 
 void Incr() {
   digitalWrite(Incled, HIGH);            // turn on button led
-  cmdval -= 3;                           // increase speed. servo mapped from 0 to 70 degrees. This reverses servo direction.
-  myservo.write(cmdval);
-  while (IncBState == HIGH)  {
-    IncBState = digitalRead(IncButton);  // read the state of the incr pushbutton value
+  if (cmdval >= (cmdmin+incrVal)){
+    cmdval -= incrVal;                           // increase speed. 
   }
+  myservo.write(cmdval);
+  delay(100);
+  while (digitalRead(IncButton))
   digitalWrite(Incled, LOW);             // turn off button led
 }
 
 void Decr() {
   digitalWrite(Decrled, HIGH);            // turn on button led
-  cmdval += 3;                            // decrease speed. servo mapped from 0 to 70 degrees. This reverses servo direction.
-  myservo.write(cmdval);
-  while (DecrBState == HIGH)  {
-    DecrBState = digitalRead(DecrButton); // read the state of the decr pushbutton value
+  if (cmdval <= (cmdmax-incrVal)){
+    cmdval += incrVal;                           // decrease speed. 
   }
+  myservo.write(cmdval);
+  delay(100);
+  while (digitalRead(DecrButton))
   digitalWrite(Decrled, LOW);             // turn off button led
 }
