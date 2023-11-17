@@ -53,7 +53,6 @@ const int incrVal = 2;      //Inc/decr value in degress
 //*********************************************************************************************
 void setup()
 {
-  //myservo.attach(3);            // attaches the servo on pin 3 to the servo object
   myservo.attach(14);            // attaches the servo on pin 3 to the servo object
   myservo.write(cmdval);        // sets the initial servo position to idle
   
@@ -80,13 +79,7 @@ void loop()
     delay(250);
     Idle();
   } 
-/*
-  FBState = digitalRead(FButton);       // read the state of the Full pushbutton value
-  if (FBState == HIGH) {            
-    delay(250);
-    Full();
-  } 
-*/
+
   if (digitalRead(IncButton)) {            
     Incr();
   } 
@@ -159,13 +152,13 @@ void PrgmA() {
   digitalWrite(PrgmAled, HIGH);           // turn on button led
   while (digitalRead(PrgmAButton)) {
     delay(100);
-    if(i > 20 ){                          // hold the button down for 2 seconds to store setting
+    if(i > 20 ){                          // long press, hold the button down for 2 seconds to store current position as positionA
       prgmaval = cmdval;
       digitalWrite(PrgmAled, LOW);        // turn off button led
     }
     i++;
   }
-  if(i < 4) {
+  if(i < 4) {                             // short press --> commands positionA
     cmdval = prgmaval;
     myservo.write(cmdval);
   }
