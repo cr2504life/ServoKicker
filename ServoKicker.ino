@@ -23,13 +23,13 @@ Reduced throttle is counter-clockwise --> towards a 70 degree command value
 */
 
 #include <Servo.h>          //include the servo library
-Servo myservo;              // create servo object to control a servo
+Servo myservo;              //create servo object to control a servo
 
-int cmdval = 70;            // variable to read the value from the analog pin
+int cmdval = 70;            //variable to read the value from the analog pin
 int cmdmin = 0;             //full throttle limit
 int cmdmax = 70;            //low throttle limit
 int origval = 0;            //to store orginal throttle value
-int prgmaval = 70;           //to store program A throttle value
+int prgmaval = 70;          //to store program A throttle value
 
 int FBState = 0;            // variable for reading the Full pushbutton status
 int IBState = 0;            // variable for reading the Idle pushbutton status
@@ -38,12 +38,12 @@ const int Fled = 4;         //Full speed button led
 const int Iled = 5;         //Idle speed button led
 const int Incled = 6;       //Incr speed button led
 const int Decrled = 7;      //Incr speed button led
-const int PrgmAled = 13;      //Incr speed button led
+const int PrgmAled = 13;    //Incr speed button led
 
 const int FButton = 9;      //Full speed button 
-const int IButton = 2;     //Idle speed button
+const int IButton = 2;      //Idle speed button
 const int IncButton = 11;   //Incr speed button
-const int DecrButton = 3;  //Decr speed button
+const int DecrButton = 3;   //Decr speed button
 const int PrgmAButton = 10; //Program A button
 
 const int FullPin = 65;     //Full speed setting. (93% of 70 degrees)
@@ -53,16 +53,16 @@ const int incrVal = 2;      //Inc/decr value in degress
 //*********************************************************************************************
 void setup()
 {
-  myservo.attach(14);            // attaches the servo on pin 3 to the servo object
-  myservo.write(cmdval);        // sets the initial servo position to idle
+  myservo.attach(14);             // attaches the servo on pin 3 to the servo object
+  myservo.write(cmdval);          // sets the initial servo position to idle
   
-  pinMode(Fled, OUTPUT);        // set the pins for the leds to outputs
+  pinMode(Fled, OUTPUT);          // set the pins for the leds to outputs
   pinMode(Iled, OUTPUT);
   pinMode(Incled, OUTPUT);
   pinMode(Decrled, OUTPUT);
   pinMode(PrgmAled, OUTPUT);
     
-  pinMode(FButton, INPUT);      // set the pins for the buttons to inputs
+  pinMode(FButton, INPUT);        // set the pins for the buttons to inputs
   pinMode(IButton, INPUT);
   pinMode(IncButton, INPUT);
   pinMode(DecrButton, INPUT);
@@ -128,7 +128,7 @@ void Full() {
 void Incr() {
   digitalWrite(Incled, HIGH);            // turn on button led
   if (cmdval >= (cmdmin+incrVal)){
-    cmdval -= incrVal;                           // increase speed. 
+    cmdval -= incrVal;                   // increase speed. 
     myservo.write(cmdval);
   }
   delay(100);
